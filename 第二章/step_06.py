@@ -1,6 +1,6 @@
 # ========== 2.5 字节对编码（BPE） ==========
 # 目标：使用 tiktoken 库实现 GPT-2 的 BPE 分词器
-with open("../text.txt", "r" , encoding="utf-8") as f:
+with open("text.txt", "r" , encoding="utf-8") as f:
     raw_text = f.read()
 text = raw_text
 # 1. 安装并导入 tiktoken 库（需要先 pip install tiktoken）

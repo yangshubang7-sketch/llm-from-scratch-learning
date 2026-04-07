@@ -1,5 +1,5 @@
 # ========== 2.6 使用滑动窗口进行数据采样 ==========
-with open("../text.txt", "r" , encoding="utf-8") as f:
+with open("text.txt", "r" , encoding="utf-8") as f:
     raw_text = f.read()
 text = raw_text
 # 1. 使用 tiktoken 获取 GPT-2 分词器，并对整个 raw_text 进行编码，得到 full_ids
