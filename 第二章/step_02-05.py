@@ -1,6 +1,6 @@
 # 任务2：将文本片段拆分成单词和标点符号的列表（tokens）
 
-with open("text.txt" , "r" , encoding="utf-8") as f:
+with open("../text.txt", "r" , encoding="utf-8") as f:
     raw_text = f.read()
 # 1. 导入 re 模块（正则表达式）
 import re
