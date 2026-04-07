@@ -23,3 +23,13 @@ tokens = [t.strip() for t in tokens_raw if t.strip()]
 print(tokens)
 # 8. 打印 tokens 列表的长度
 print(len(tokens))
+
+
+# ========== 任务3：构建词汇表（2.3节 第24-26页） ==========
+
+# 1. 从 tokens 中获取所有唯一的 token，并排序
+tokens = sorted(list(set(tokens)))
+# 2. 构建词汇表字典：{token: 整数ID}
+vocab = {s : i for i , s in enumerate(tokens)}
+# 3. 打印词汇表大小
+print(len(tokens))
