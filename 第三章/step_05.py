@@ -45,7 +45,7 @@ class MultiHeadAttention(nn.Module):
             queries = W_q(x)
             keys = W_k(x)
             values = W_v(x)
-            attn_scores = queries @ keys.transpose(0 , 1)
+            attn_scores = queries @ keys.transpose(-2 , -1)
             attn_scores = attn_scores / (self.d_out ** 0.5)
             attn_weights = torch.softmax(attn_scores, dim=-1)
             head_output = attn_weights @ values
