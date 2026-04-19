@@ -63,3 +63,76 @@ output = muti(inputs)
 print(output)
 
 
+# ========== Transformer 块 ==========
+# 目标：将多头注意力、前馈网络、残差连接和层归一化组合成一个可堆叠的模块
+
+# 1. 定义前馈网络类 FeedForward（继承 nn.Module）
+#    2.1 __init__ 接收参数 emb_dim（嵌入维度），hidden_dim 通常设为 4 * emb_dim
+#    2.2 创建两个线性层：self.fc1 = nn.Linear(emb_dim, hidden_dim)
+#    2.3 创建激活函数：self.gelu = nn.GELU()
+#    2.4 创建第二个线性层：self.fc2 = nn.Linear(hidden_dim, emb_dim)
+#    2.5 forward 方法：x -> fc1 -> gelu -> fc2
+class FeedForward(nn.Module):
+
+    def __init__(self , emb_dim , hidden_dim = None):
+        super().__init__()
+        if hidden_dim is None:
+            hidden_dim = 4 * emb_dim
+        self.fc1 = nn.Linear(emb_dim, hidden_dim)
+        self.gelu = nn.GELU()
+        self.fc2 = nn.Linear(hidden_dim, emb_dim)
+
+    def forward(self , x):
+        x = self.fc1(x)
+        x = self.gelu(x)
+        x = self.fc2(x)
+        return x
+# 2. 定义 TransformerBlock 类（继承 nn.Module）
+#    3.1 __init__ 接收参数：emb_dim（嵌入维度）、num_heads（多头数量）、dropout（可选）
+#    3.2 创建多头注意力实例：self.attn = MultiHeadAttention(d_in=emb_dim, d_out=emb_dim, num_heads=num_heads)
+#        注意：这里每个头的输出维度 d_out = emb_dim // num_heads（需要整除）
+#    3.3 创建前馈网络：self.ffn = FeedForward(emb_dim)
+#    3.4 创建两个层归一化：c，self.norm2 = nn.LayerNorm(emb_dim)
+#    3.5 创建 dropout 层（可选）：self.dropout = nn.Dropout(dropout)
+class TransformerBlock(nn.Module):
+
+    def __init__(self , emb_dim , num_heads):
+        super().__init__()
+        self.attn = MultiHeadAttention(d_in=emb_dim, d_out=emb_dim // num_heads, num_heads=num_heads)
+        self.ffn = FeedForward(emb_dim)
+        self.norm1 = nn.LayerNorm(emb_dim)
+        self.norm2 = nn.LayerNorm(emb_dim)
+#    3.6 forward 方法：
+#        - 保存输入副本 shortcut = x
+#        - x = self.norm1(x)
+#        - x = self.attn(x)          # 多头注意力输出
+#        - x = self.dropout(x)        # 可选
+#        - x = x + shortcut           # 第一个残差连接
+#        - shortcut = x
+#        - x = self.norm2(x)
+#        - x = self.ffn(x)
+#        - x = self.dropout(x)
+#        - x = x + shortcut           # 第二个残差连接
+#        - return x
+    def forward(self , x):
+        shortcut = x
+        x = self.norm1(x)
+        x = self.attn(x)
+        shortcut = x
+        x = self.norm2(x)
+        x = self.ffn(x)
+        x = x + shortcut
+        return x
+# 3. 测试 TransformerBlock
+#    - 创建实例：emb_dim=768, num_heads=12, dropout=0.1
+#    - 生成随机输入：batch_size=2, seq_len=16, emb_dim=768
+#    - 前向传播，打印输出形状（应与输入相同）
+emb_dim= 768
+num_heads= 12
+batch_size=2
+seq_len=16
+block = TransformerBlock(emb_dim, num_heads)
+x = torch.randn(seq_len, emb_dim)   # (seq_len, emb_dim)
+out = block(x)
+print(f"输入形状: {x.shape}")
+print(f"输出形状: {out.shape}")
